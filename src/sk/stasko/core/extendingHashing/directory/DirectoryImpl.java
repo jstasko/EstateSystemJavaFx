@@ -7,7 +7,6 @@ import sk.stasko.core.savableObject.SavableObject;
 import sk.stasko.core.extendingHashing.block.ExtendingBlockImpl;
 import sk.stasko.core.extendingHashing.node.DirectoryNodeImpl;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -81,26 +80,17 @@ public class DirectoryImpl<T extends SavableObject<U>, U extends Comparable<U>> 
     }
 
     @Override
-    public String toString(List<T> records) throws IOException {
-        int sizeOfRecord = records.get(0).getAllocatedMemory();
+    public String toString(byte[] records, int sizeOfRecord) {
         List<DirectoryNodeImpl<T, U>> helper = this.directory
                 .stream()
                 .sorted(Comparator.comparingInt(DirectoryNodeImpl::getStartPosition))
                 .distinct()
                 .collect(Collectors.toList());
         String concatString = "";
-        var index = new Object() {int index = 0;};
         for(DirectoryNodeImpl<T, U> i: helper) {
-            index.index = i.getStartPosition() / sizeOfRecord;
-            List<T> help = i.read();
-            concatString = concatString.concat(i.toString(help));
+            concatString = concatString.concat(i.toString(records, sizeOfRecord));
         }
         return concatString;
-    }
-
-    @Override
-    public boolean contains(DirectoryNodeImpl<T, U> node) {
-        return this.directory.contains(node);
     }
 
     @Override
@@ -110,5 +100,10 @@ public class DirectoryImpl<T extends SavableObject<U>, U extends Comparable<U>> 
                 .filter(i -> node.equals(i.getNextBlock()))
                 .findFirst()
                 .orElse(null);
+    }
+
+    @Override
+    public int indexOf(DirectoryNodeImpl<T, U> node) {
+        return this.directory.indexOf(node);
     }
 }

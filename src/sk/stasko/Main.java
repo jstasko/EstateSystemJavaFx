@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 /**
- * TODO riadici blok , refactor directory class a overflowing class, zmena map na listy, odstranit duplicity pri vypise, refaktor citania blokov vo vypise
+ * TODO riadici blok , refactor directory class a overflowing class
  */
 public class Main extends Application {
     private static RandomAccessFile randomAccessFileMain;

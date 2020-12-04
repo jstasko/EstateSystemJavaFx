@@ -22,12 +22,12 @@ public class TestFileHandler extends FileHandlerImpl<TestObject, TestKey> {
     }
 
     @Override
-    public List<TestObject> readBlockByByte(int start, int numberOfBytes) throws IOException {
-        byte[] bytes = this.read(start, numberOfBytes);
-        return this.convert(bytes);
+    public byte[] readBlockByByte(int start, int numberOfBytes) throws IOException {
+        return this.read(start, numberOfBytes);
     }
 
-    private List<TestObject> convert(byte[] bytes) {
+    @Override
+    public List<TestObject> convert(byte[] bytes) {
         List<TestObject> listOfTests = new LinkedList<>();
         int index = 0;
         while (index < bytes.length) {

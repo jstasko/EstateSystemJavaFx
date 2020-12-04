@@ -21,12 +21,12 @@ public class PersonFileHandler extends FileHandlerImpl<Person, Integer> {
     }
 
     @Override
-    public List<Person> readBlockByByte(int start, int numberOfBytes) throws IOException {
-        byte[] bytes = this.read(start, numberOfBytes);
-        return convert(bytes);
+    public byte[] readBlockByByte(int start, int numberOfBytes) throws IOException {
+        return this.read(start, numberOfBytes);
     }
 
-    private List<Person> convert(byte[] bytes) {
+    @Override
+    public List<Person> convert(byte[] bytes) {
         List<Person> listOfPersons = new LinkedList<>();
         int index = 0;
         while (index < bytes.length) {

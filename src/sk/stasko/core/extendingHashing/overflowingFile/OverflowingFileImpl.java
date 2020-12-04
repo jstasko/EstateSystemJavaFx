@@ -192,11 +192,9 @@ public class OverflowingFileImpl<T extends SavableObject<U>, U extends Comparabl
         if (helper.size() == 0) {
             return "No overflow blocks";
         }
-        var index = new Object() {int index = 0;};
+        byte[] bytes = this.fileHandler.readBlockByByte(0, this.startPositionOfLastAllocatedBlock());
         for(OverflowingBlock<T, U> i: helper) {
-            index.index = i.getStartPosition() / this.sizeOfRecord;
-            List<T> help = i.read();
-            concatString = concatString.concat(i.toString(help));
+            concatString = concatString.concat(i.toString(bytes, this.sizeOfRecord));
         }
         return concatString;
     }

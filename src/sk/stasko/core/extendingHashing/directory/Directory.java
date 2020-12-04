@@ -17,7 +17,7 @@ public interface Directory<T extends SavableObject<U>, U extends Comparable<U>> 
     void doubleDirectory();
     void setOne(int index, DirectoryNodeImpl<T, U> item);
     int startPositionOfLastAllocatedBlock();
-    String toString(List<T> records) throws IOException;
-    boolean contains(DirectoryNodeImpl<T, U> node);
+    String toString(byte[] records, int sizeOfRecord);
     OverflowingHandler<OverflowingBlock<T, U>> findAncestor(OverflowingBlock<T, U> index);
+    int indexOf(DirectoryNodeImpl<T, U> node);
 }

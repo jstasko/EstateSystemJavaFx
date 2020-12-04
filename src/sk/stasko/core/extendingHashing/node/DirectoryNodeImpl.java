@@ -9,7 +9,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public abstract class DirectoryNodeImpl<T extends SavableObject<U>, U extends Comparable<U>> extends FileNode<T, U> implements DirectoryNode<T, U>, OverflowingHandler<OverflowingBlock<T, U>> {
-    protected OverflowingBlock<T, U> nextBlock;
     protected List<T> temporaryRecords;
 
     public DirectoryNodeImpl(int startPosition, int maxNumberOfRecords, FileHandler<T> fileHandler) {

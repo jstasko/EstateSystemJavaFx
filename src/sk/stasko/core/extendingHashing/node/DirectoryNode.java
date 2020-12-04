@@ -7,5 +7,4 @@ import java.util.List;
 
 public interface DirectoryNode<T extends SavableObject<U>, U extends Comparable<U>> extends ExtendingBlock, NodeHandling<T> {
     int getActualNumberOfRecords(boolean isNeighbour);
-    String toString(List<T> records);
 }

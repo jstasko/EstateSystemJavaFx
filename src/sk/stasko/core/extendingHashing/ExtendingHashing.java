@@ -16,7 +16,6 @@ import sk.stasko.core.extendingHashing.directory.DirectoryImpl;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -126,8 +125,8 @@ public class ExtendingHashing<T extends SavableObject<U>, U extends Comparable<U
 
     @Override
     public String printBlocks(int sizeOfRecord) throws IOException {
-        List<T> records = this.fileHandler.readBlockByByte(0, this.directory.startPositionOfLastAllocatedBlock() + this.numberOfRecords*sizeOfRecord);
-        return this.directory.toString(records);
+        byte[] records = this.fileHandler.readBlockByByte(0, this.directory.startPositionOfLastAllocatedBlock() + this.numberOfRecords*sizeOfRecord);
+        return this.directory.toString(records, sizeOfRecord);
     }
 
     @Override
@@ -170,17 +169,20 @@ public class ExtendingHashing<T extends SavableObject<U>, U extends Comparable<U
         if (indexOfNode == -1) {
             return null;
         }
-        // TODO MAP index of and distinct
-        Map<DirectoryNodeImpl<T, U>, Integer> possibleNeighbours = IntStream.range(0, this.directory.sizeOfDirectory())
+
+        List<DirectoryNodeImpl<T, U>> possibleNeighbours = IntStream.range(0, this.directory.sizeOfDirectory())
                 .filter(i -> this.directory.getOne(i).getDepthOfBlock() == node.getDepthOfBlock())
                 .filter(i -> !this.directory.getOne(i).equals(node))
                 .boxed()
-                .collect(Collectors.toMap(this.directory::getOne, Function.identity(), (x1, x2) -> x1));
+                .map(this.directory::getOne)
+                .distinct()
+                .collect(Collectors.toList());
 
         int indexOfPrefix = this.hashingFunction.getPrefixFromIndex(indexOfNode, this.directory.getDepthOfDirectory(),node.getDepthOfBlock());
         var wrapper = new Object(){ int index = -1; };
-        possibleNeighbours.forEach((key, value) -> {
-            int possibleNeighbourPrefix = this.hashingFunction.getPrefixFromIndex(value, this.directory.getDepthOfDirectory(),key.getDepthOfBlock());
+        possibleNeighbours.forEach(i -> {
+            int value = this.directory.indexOf(i);
+            int possibleNeighbourPrefix = this.hashingFunction.getPrefixFromIndex(value, this.directory.getDepthOfDirectory(),i.getDepthOfBlock());
             if (possibleNeighbourPrefix == indexOfPrefix) {
                 wrapper.index = value;
             }
@@ -214,8 +216,7 @@ public class ExtendingHashing<T extends SavableObject<U>, U extends Comparable<U
         oldBlock.clearData();
         items.add(myItem);
         var wrapper = new Object(){ boolean added = false; };
-        //TODO SET
-        Set<DirectoryNodeImpl<T, U>> nodes = new HashSet<>();
+        List<DirectoryNodeImpl<T, U>> nodes = new ArrayList<>(2);
         IntStream.range(0, items.size())
                 .forEach(i -> {
                     int newIndex = this.hashingFunction.getIndexFromItem(items.get(i), this.directory.getDepthOfDirectory(), oldBlock.getDepthOfBlock());

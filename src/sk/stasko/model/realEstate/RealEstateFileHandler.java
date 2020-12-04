@@ -20,12 +20,12 @@ public class RealEstateFileHandler extends FileHandlerImpl<RealEstate, Integer> 
     }
 
     @Override
-    public List<RealEstate> readBlockByByte(int start, int numberOfBytes) throws IOException {
-        byte[] bytes = this.read(start, numberOfBytes);
-        return this.convert(bytes);
+    public byte[] readBlockByByte(int start, int numberOfBytes) throws IOException {
+        return this.read(start, numberOfBytes);
     }
 
-    private List<RealEstate> convert(byte[] bytes) {
+    @Override
+    public List<RealEstate> convert(byte[] bytes) {
         List<RealEstate> estates = new LinkedList<>();
         int index = 0;
         while (index < bytes.length) {
