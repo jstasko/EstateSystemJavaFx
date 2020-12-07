@@ -1,11 +1,10 @@
 package sk.stasko.service;
 
-import sk.stasko.core.extendingHashing.ExtendingHashing;
-import sk.stasko.core.extendingHashing.Hashing;
-import sk.stasko.core.extendingHashing.overflowingFile.OverflowingFile;
-import sk.stasko.core.extendingHashing.overflowingFile.OverflowingFileImpl;
+import sk.stasko.core.hashing.extendingHashing.ExtendingHashing;
+import sk.stasko.core.hashing.extendingHashing.Hashing;
+import sk.stasko.core.hashing.extendingHashing.overflowingDirectory.OverflowingDirectoryImpl;
 import sk.stasko.core.fileHandler.FileHandler;
-import sk.stasko.core.hash.AbstractHash;
+import sk.stasko.core.hashFunction.AbstractHash;
 import sk.stasko.model.gps.Gps;
 import sk.stasko.model.realEstate.RealEstate;
 import sk.stasko.model.realEstate.RealEstateKeyHash;
@@ -16,11 +15,18 @@ import java.io.IOException;
 public class ServiceImpl implements Service<RealEstate> {
     private static Service<RealEstate> instance;
     private final Hashing<RealEstate, Integer> realEstateHashing;
-    private final OverflowingFile<RealEstate, Integer> overflowingFile;
 
-    public static void setInstance(FileHandler<RealEstate> mainFile, FileHandler<RealEstate> overflow) {
+    public static void setInstance(FileHandler<RealEstate> mainFile, FileHandler<RealEstate> overflow) throws IOException {
         if (instance == null) {
             instance = new ServiceImpl(mainFile, overflow);
+        }
+    }
+
+    public static void setInstance(int numberOfRecords, int numberOfAllowedBits, int numberInOverflow,
+                                   FileHandler<RealEstate> mainFile,
+                                   FileHandler<RealEstate> overflow) throws IOException {
+        if (instance == null) {
+            instance = new ServiceImpl(numberOfRecords, numberOfAllowedBits, numberInOverflow,mainFile, overflow);
         }
     }
 
@@ -28,12 +34,10 @@ public class ServiceImpl implements Service<RealEstate> {
         return instance;
     }
 
-    private ServiceImpl(FileHandler<RealEstate> mainFile, FileHandler<RealEstate> overflow) {
+    private ServiceImpl(int numberOfRecords, int numberOfAllowedBits, int numberInOverflow,
+                        FileHandler<RealEstate> mainFile,
+                        FileHandler<RealEstate> overflow) throws IOException {
         AbstractHash<RealEstate, Integer> hashFunction = new RealEstateKeyHash();
-        int numberOfAllowedBits = 7;
-        int numberOfRecords = 10;
-        this.overflowingFile =
-                new OverflowingFileImpl<>(numberOfRecords, RealEstate.allocatedMemory, overflow);
         this.realEstateHashing =
                 new ExtendingHashing<>(
                         numberOfRecords,
@@ -41,8 +45,16 @@ public class ServiceImpl implements Service<RealEstate> {
                         numberOfAllowedBits,
                         hashFunction,
                         mainFile,
-                        this.overflowingFile
+                        new OverflowingDirectoryImpl<>(numberInOverflow, RealEstate.allocatedMemory, overflow)
                 );
+    }
+
+    public ServiceImpl(FileHandler<RealEstate> mainFile, FileHandler<RealEstate> overflow) throws IOException {
+            this.realEstateHashing =
+                    new ExtendingHashing<>(
+                            RealEstate.allocatedMemory,
+                            mainFile, overflow,
+                            new RealEstateKeyHash());
     }
 
     @Override
@@ -69,6 +81,11 @@ public class ServiceImpl implements Service<RealEstate> {
     }
 
     @Override
+    public void saveSettings() throws IOException {
+        this.realEstateHashing.saveSettings();
+    }
+
+    @Override
     public String getMainPart() throws IOException {
         return this.realEstateHashing.printBlocks(RealEstate.allocatedMemory);
     }
@@ -80,11 +97,11 @@ public class ServiceImpl implements Service<RealEstate> {
 
     @Override
     public String getOverflowPart() throws IOException {
-        return this.overflowingFile.print();
+        return this.realEstateHashing.getOverflowPart();
     }
 
     @Override
     public String getOverflowPartBlank() {
-        return this.overflowingFile.printBlank();
+        return this.realEstateHashing.getOverflowPartBlank();
     }
 }

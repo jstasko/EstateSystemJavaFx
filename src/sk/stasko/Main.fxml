@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800" prefWidth="1000.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sk.stasko.controller.MainController">
+      <Button layoutX="207.0" layoutY="240.0" mnemonicParsing="false" onMouseClicked="#load" prefHeight="38.0" prefWidth="134.0" text="Load" />
+      <Button layoutX="665.0" layoutY="240.0" mnemonicParsing="false" onMouseClicked="#createNew" prefHeight="38.0" prefWidth="134.0" text="Create New" />
+      <Button layoutX="433.0" layoutY="381.0" mnemonicParsing="false" onMouseClicked="#exit" prefHeight="38.0" prefWidth="134.0" text="Exit" />
+      <Label layoutX="394.0" layoutY="50.0" text="Real Estate System">
+         <font>
+            <Font name="System Bold" size="24.0" />
+         </font>
+      </Label>
+</AnchorPane>

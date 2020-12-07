@@ -1,6 +1,6 @@
 package sk.stasko.test;
 
-import sk.stasko.test.entities.personTest.PersonTest;
+import sk.stasko.test.personTest.PersonTest;
 
 import java.io.IOException;
 import java.util.Random;

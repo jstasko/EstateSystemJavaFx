@@ -1,29 +1,30 @@
-package sk.stasko.model.realEstate;
+package sk.stasko.test.personTest.service;
 
 import sk.stasko.core.converter.ByteConverter;
 import sk.stasko.core.savableObject.SavableObject;
 import sk.stasko.core.hashFunction.AbstractHash;
+import sk.stasko.test.personTest.entity.Person;
 
 import java.util.BitSet;
 
-public class RealEstateKeyHash extends AbstractHash<RealEstate, Integer> {
+public class PersonKeyHash extends AbstractHash<Person, Integer> {
     @Override
     protected int hash(SavableObject<Integer> item) {
-        return this.myHashFunction(item.getKey());
+        return item.getKey();
     }
 
     @Override
     protected int hash(Integer key) {
-        return this.myHashFunction(key);
+        return key;
     }
 
     @Override
-    public int getIndexFromItem(RealEstate realEstate, int numberOfBits) {
+    public int getIndexFromItem(Person item, int numberOfBits) {
         if (numberOfBits == 0) {
             return 0;
         }
-        byte[] hash = ByteConverter.intToBytes(this.hash(realEstate));
-        return this.getIndex(hash, numberOfBits);
+        byte[] hash = ByteConverter.intToBytes(this.hash(item));
+        return getIndex(hash, numberOfBits);
     }
 
     @Override
@@ -36,16 +37,12 @@ public class RealEstateKeyHash extends AbstractHash<RealEstate, Integer> {
     }
 
     @Override
-    public int getIndexFromItem(RealEstate item, int numberOfBits, int localDepth) {
+    public int getIndexFromItem(Person item, int numberOfBits, int localDepth) {
         if (numberOfBits == 0) {
             return 0;
         }
         byte[] hash = ByteConverter.intToBytes(this.hash(item));
         return getIndex(hash, numberOfBits, localDepth);
-    }
-
-    private int myHashFunction(Integer key) {
-        return key;
     }
 
     @Override

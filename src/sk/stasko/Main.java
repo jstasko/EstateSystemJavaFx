@@ -2,28 +2,21 @@ package sk.stasko;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import sk.stasko.core.fileHandler.FileHandler;
-import sk.stasko.model.realEstate.RealEstate;
-import sk.stasko.model.realEstate.RealEstateFileHandler;
 import sk.stasko.service.ServiceImpl;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
 /**
- * TODO riadici blok , refactor directory class a overflowing class
+ * TODO  porozmyslat nad lepsim striasanim
  */
 public class Main extends Application {
-    private static RandomAccessFile randomAccessFileMain;
-    private static RandomAccessFile randomAccessFileOver;
-
-    @Override
-    public void init() throws Exception {
-        randomAccessFileMain = new RandomAccessFile("main.dat", "rw");
-        randomAccessFileOver = new RandomAccessFile("over.dat", "rw");
-    }
+    public static RandomAccessFile randomAccessFileMain;
+    public static RandomAccessFile randomAccessFileOver;
+    private static Scene scene;
 
     /**
      *
@@ -32,8 +25,8 @@ public class Main extends Application {
      */
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("System.fxml"));
-        Scene scene = new Scene(fxmlLoader.load());
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("Main.fxml"));
+        scene = new Scene(fxmlLoader.load());
         stage.setScene(scene);
         stage.show();
     }
@@ -48,16 +41,35 @@ public class Main extends Application {
      * @return boolean
      */
     public static boolean save() {
-        return false;
+        try {
+            ServiceImpl.getInstance().saveSettings();
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @param fxml - view
+     */
+    public static void setRoot(Parent fxml) {
+        scene.setRoot(fxml);
+    }
+
+    /**
+     *
+     * @param newFxml - new fxml file to be load
+     * @throws IOException - throws during work with file
+     */
+    public static void setNewRoot(String newFxml) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource(newFxml + ".fxml"));
+        Main.setRoot(fxmlLoader.load());
     }
 
     public static void main(String[] args) {
         try {
             randomAccessFileMain = new RandomAccessFile("main.dat", "rw");
             randomAccessFileOver = new RandomAccessFile("over.dat", "rw");
-            FileHandler<RealEstate> fileHandlerMain = new RealEstateFileHandler(randomAccessFileMain);
-            FileHandler<RealEstate> over = new RealEstateFileHandler(randomAccessFileOver);
-            ServiceImpl.setInstance(fileHandlerMain, over);
             launch();
         } catch (IOException e) {
             System.out.println(e.getMessage());

@@ -7,4 +7,5 @@ public interface Service<T> extends PrintService {
     boolean delete(T item) throws IOException;
     T find(int id) throws IOException;
     T createRealEstate(String catalogNum, String desc, String latStr, String lonStr) throws RuntimeException;
+    void saveSettings() throws IOException;
 }

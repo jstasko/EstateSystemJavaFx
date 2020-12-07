@@ -1,9 +1,9 @@
 package sk.stasko.test;
 
 import sk.stasko.core.fileHandler.FileHandlerImpl;
-import sk.stasko.core.extendingHashing.overflowingFile.OverflowingFile;
+import sk.stasko.core.hashing.extendingHashing.overflowingDirectory.OverflowingDirectory;
 import sk.stasko.core.savableObject.SavableObjectImpl;
-import sk.stasko.core.extendingHashing.ExtendingHashing;
+import sk.stasko.core.hashing.extendingHashing.ExtendingHashing;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -17,9 +17,9 @@ public class AbstractTest<T extends SavableObjectImpl<U>, U extends Comparable<U
     protected final List<T> list;
     protected Random random;
     protected FileHandlerImpl<T, U> fileHandler;
-    protected OverflowingFile<T ,U> o;
+    protected OverflowingDirectory<T ,U> o;
 
-    public AbstractTest(Random random, FileHandlerImpl<T, U> fileHandler, ExtendingHashing<T, U> extendibleHashing, OverflowingFile<T, U> o) {
+    public AbstractTest(Random random, FileHandlerImpl<T, U> fileHandler, ExtendingHashing<T, U> extendibleHashing, OverflowingDirectory<T, U> o) {
         this.fileHandler = fileHandler;
         this.extendibleHashing = extendibleHashing;
         this.list = new LinkedList<>();

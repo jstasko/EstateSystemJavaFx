@@ -6,9 +6,11 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800"
             prefWidth="1000.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="sk.stasko.controller.MainController">
+            fx:controller="sk.stasko.controller.SystemController">
     <MenuBar layoutY="1.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <Menu mnemonicParsing="false" text="File">
+            <MenuItem mnemonicParsing="false" onAction="#save" text="Save"/>
+            <MenuItem mnemonicParsing="false" onAction="#handleGenerator" text="Generator"/>
             <MenuItem mnemonicParsing="false" onAction="#exit" text="Close"/>
         </Menu>
     </MenuBar>
@@ -76,10 +78,10 @@
                              AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                         <Tab text="Main ">
-                            <fx:include source="view/MainPart.fxml"/>
+                            <fx:include source="view/tabs/MainPart.fxml"/>
                         </Tab>
                         <Tab text="Overflow">
-                            <fx:include source="view/OverflowPart.fxml"/>
+                            <fx:include source="view/tabs/OverflowPart.fxml"/>
                         </Tab>
                     </TabPane>
                 </AnchorPane>

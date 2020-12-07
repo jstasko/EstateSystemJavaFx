@@ -4,71 +4,64 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.ListView;
-import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import sk.stasko.Main;
+import sk.stasko.core.fileHandler.FileHandler;
 import sk.stasko.model.realEstate.RealEstate;
+import sk.stasko.model.realEstate.RealEstateFileHandler;
 import sk.stasko.service.ServiceImpl;
 import sk.stasko.util.AlertHandler;
-import sk.stasko.util.Helper;
 
 import java.io.IOException;
 
 public class MainController extends AbstractController<RealEstate> {
+    @FXML private TextField maxItem;
+    @FXML private TextField allowedBits;
+    @FXML private TextField maxItemOverflow;
+    private Stage stage;
 
-    @FXML private ListView<RealEstate> realEstateView;
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
 
-    public void handleSelect() throws IOException {
-        RealEstate estate = this.realEstateView.getSelectionModel().getSelectedItem();
-        if (estate == null) {
-            AlertHandler.errorDialog("Error", "You did not correctly select item");
-            return;
-        }
-        this.realEstateView.getItems().clear();
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("view/EditTab.fxml"));
+    public void load() throws IOException {
+        FileHandler<RealEstate> fileHandlerMain = new RealEstateFileHandler(Main.randomAccessFileMain);
+        FileHandler<RealEstate> over = new RealEstateFileHandler(Main.randomAccessFileOver);
+        ServiceImpl.setInstance(fileHandlerMain, over);
+        Main.setNewRoot("System");
+    }
+
+    public void createNew() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("view/modal/CreateModal.fxml"));
         Parent mainLoader = fxmlLoader.load();
-        EditTabController editController = fxmlLoader.getController();
+        MainController mainController = fxmlLoader.getController();
         Stage stage = new Stage();
-        stage.setTitle("Edit/Delete");
+        stage.setTitle("Create new");
         stage.setScene(new Scene(mainLoader, 400, 350));
-        editController.setFields(estate, stage);
+        mainController.setStage(stage);
         stage.show();
     }
 
-    public void findEstate() throws IOException {
-        int id;
+    public void getNew() throws IOException {
+        int maxItem;
+        int allowedBits;
+        int maxItemOverflow;
         try {
-            id = Integer.parseInt(this.id.getText());
+            maxItem = Integer.parseInt(this.maxItem.getText());
+            allowedBits = Integer.parseInt(this.allowedBits.getText());
+            maxItemOverflow = Integer.parseInt(this.maxItemOverflow.getText());
         } catch (NumberFormatException e) {
-            AlertHandler.errorDialog("Error", "You did not type correct id");
+            AlertHandler.errorDialog("Error", "You did not type number");
             return;
         }
-        RealEstate estate = ServiceImpl.getInstance().find(id);
-        if (estate == null) {
-            AlertHandler.errorDialog("Error", "There is no such estate");
-            return;
-        }
-        this.realEstateView.getItems().setAll(estate);
-        this.realEstateView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-    }
 
-    public void add() throws IOException {
-        RealEstate estate = Helper.handleRealEstate(this.catalogNumber.getText(), this.desc.getText(), this.lat.getText(), this.lon.getText());
-        if (estate == null) {
-            return;
-        }
-        ServiceImpl.getInstance().add(estate);
-        AlertHandler.informationDialog("Success","You have added Real Estate with id " + estate.getId());
-    }
 
-    public void getMainPart() throws IOException {
-        this.mainPart.setText(ServiceImpl.getInstance().getMainPart());
-        this.mainPartBlank.setText(ServiceImpl.getInstance().getMainPartBlank());
-    }
-
-    public void getOverflowPart() throws IOException {
-        this.overflowPart.setText(ServiceImpl.getInstance().getOverflowPart());
-        this.overflowPartBlank.setText(ServiceImpl.getInstance().getOverflowPartBlank());
+        FileHandler<RealEstate> fileHandlerMain = new RealEstateFileHandler(Main.randomAccessFileMain);
+        FileHandler<RealEstate> over = new RealEstateFileHandler(Main.randomAccessFileOver);
+        ServiceImpl.setInstance(maxItem, allowedBits, maxItemOverflow, fileHandlerMain, over);
+        Main.setNewRoot("System");
+        stage.close();
+        this.stage = null;
     }
 }

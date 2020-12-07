@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="350.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sk.stasko.controller.MainController">
+      <Label layoutX="134.0" layoutY="14.0" text="Create New">
+         <font>
+            <Font name="System Bold" size="24.0" />
+         </font>
+      </Label>
+      <TextField fx:id="maxItem" layoutX="125.0" layoutY="92.0" />
+      <TextField fx:id="allowedBits" layoutX="126.0" layoutY="149.0" />
+      <TextField fx:id="maxItemOverflow" layoutX="126.0" layoutY="218.0" />
+      <Button onMouseClicked="#getNew" layoutX="125.0" layoutY="283.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="149.0" text="Create" />
+      <Label layoutX="175.0" layoutY="64.0" text="Max Item" />
+      <Label layoutX="153.0" layoutY="127.0" text="Max Allowed Bits" />
+      <Label layoutX="144.0" layoutY="190.0" text="Max Item in overflow" />
+</AnchorPane>
