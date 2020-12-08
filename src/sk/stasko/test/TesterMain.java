@@ -8,7 +8,7 @@ import java.util.Random;
 public class TesterMain {
     public static void main(String[] args) {
         try {
-            PersonTest.firstTest();
+            PersonTest.secondTest();
         } catch (IOException e) {
             System.out.println(e.getMessage());
             e.getStackTrace();

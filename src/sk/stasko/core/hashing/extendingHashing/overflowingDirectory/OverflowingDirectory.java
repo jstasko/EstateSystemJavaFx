@@ -7,6 +7,7 @@ import sk.stasko.core.hashing.extendingHashing.overflowingDirectory.node.Overflo
 import sk.stasko.core.savableObject.SavableObject;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface OverflowingDirectory<T extends SavableObject<U>, U extends Comparable<U>>
         extends Directory<OverflowingNodeImpl<T, U>, Integer> {
@@ -16,7 +17,7 @@ public interface OverflowingDirectory<T extends SavableObject<U>, U extends Comp
     void reorder(OverflowingNodeImpl<T, U> node) throws IOException;
     OverflowingNodeImpl<T, U> findAncestor(OverflowingNodeImpl<T, U> block);
     void addToBlankBlocks(OverflowingNodeImpl<T, U> node);
-    T getItemFromLastBlock(OverflowingHandler<OverflowingNodeImpl<T, U>> node) throws IOException;
+    List<T> reorderFromMain(OverflowingHandler<OverflowingNodeImpl<T, U>> node, int numberOfRecords, int maxItems) throws IOException;
     void reorderBlankBlocks() throws IOException;
     String print() throws IOException;
     String printBlank();

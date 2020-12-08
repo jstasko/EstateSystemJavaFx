@@ -172,39 +172,28 @@ public class OverflowingDirectoryImpl<T extends SavableObject<U>, U extends Comp
     }
 
     @Override
-    public T getItemFromLastBlock(OverflowingHandler<OverflowingNodeImpl<T, U>> node) throws IOException {
-        OverflowingNodeImpl<T, U> helpNode = this.findLastBlockFromChain(node);
-        List<T> items = helpNode.read();
-        helpNode.clearData();
-        T returnData = items.get(items.size() - 1);
-        OverflowingNodeImpl<T, U> ancestorInOverflowing = this.findAncestor(helpNode);
-        this.removeDataFromBlock(items, helpNode);
-        if (helpNode.getNumberOfRecords() == 0 && ancestorInOverflowing == null) {
-            node.setNextBlock(null);
-        } else if (helpNode.getNumberOfRecords() == 0) {
-            ancestorInOverflowing.setNextBlock(null);
-        }
-        return returnData;
-    }
-
-    private void removeDataFromBlock(List<T> items, OverflowingNodeImpl<T, U> eraseFrom) throws IOException {
-        items.remove(items.get(items.size() - 1));
-        if (items.size() == 0) {
-            this.addToBlankBlocks(eraseFrom);
-        } else {
-            this.fileHandler.write(items, eraseFrom.getStartPosition(), eraseFrom.getNumberOfRecords());
-            eraseFrom.setCurrentRecordsNumber(items.size());
-        }
-    }
-
-    private OverflowingNodeImpl<T, U> findLastBlockFromChain(OverflowingHandler<OverflowingNodeImpl<T ,U>> node) {
+    public List<T> reorderFromMain(OverflowingHandler<OverflowingNodeImpl<T, U>> node, int numberOfItems, int maxItems) throws IOException {
         int index = this.directory.indexOf(node.getNextBlock());
-        OverflowingNodeImpl<T, U> helpNode = null;
+        OverflowingNodeImpl<T, U> helpNode;
+        List<T> items = new ArrayList<>();
+        int currentRecords = numberOfItems;
         while (index > -1) {
             helpNode = this.directory.get(index);
             index = this.directory.indexOf(helpNode.getNextBlock());
+            if (currentRecords + helpNode.getNumberOfRecords() <= maxItems) {
+                items.addAll(helpNode.read());
+                helpNode.clearData();
+                OverflowingNodeImpl<T, U> ancestorInOverflowing = this.findAncestor(helpNode);
+                if (ancestorInOverflowing == null) {
+                    node.setNextBlock(helpNode);
+                } else {
+                    ancestorInOverflowing.setNextBlock(helpNode.getNextBlock());
+                }
+                this.addToBlankBlocks(helpNode);
+                currentRecords += items.size();
+            }
         }
-        return helpNode;
+        return items;
     }
 
     @Override

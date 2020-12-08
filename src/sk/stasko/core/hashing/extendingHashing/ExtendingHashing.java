@@ -106,6 +106,7 @@ public class ExtendingHashing<T extends SavableObject<U>, U extends Comparable<U
                 .collect(Collectors.toList());
         block.clearData();
         itemsInBlock.forEach(block::addToTemporaryList);
+
         if (eraseFrom == null) {
             return false;
         }
@@ -304,8 +305,8 @@ public class ExtendingHashing<T extends SavableObject<U>, U extends Comparable<U
         if (node.getNextBlock() == null) {
             return;
         }
-        T item = this.overflowingDirectory.getItemFromLastBlock(node);
-        node.addToTemporaryList(item);
+        List<T> items = this.overflowingDirectory.reorderFromMain(node, node.getTemporaryList().size(), this.numberOfRecords);
+        items.forEach(node::addToTemporaryList);
     }
 
     @Override
