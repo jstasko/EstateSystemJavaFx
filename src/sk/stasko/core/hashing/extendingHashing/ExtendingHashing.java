@@ -32,6 +32,7 @@ public class ExtendingHashing<T extends SavableObject<U>, U extends Comparable<U
     private final OverflowingDirectory<T, U> overflowingDirectory;
     private final int numberOfAllowedBits;
     private static final String filename = "settingsFile.txt";
+    private final ManagementFile<T, U> management;
 
     public ExtendingHashing
             (int numberOfRecords, int sizeOfRecord, int numberOfAllowedBits,
@@ -47,10 +48,16 @@ public class ExtendingHashing<T extends SavableObject<U>, U extends Comparable<U
 
         this.numberOfAllowedBits = numberOfAllowedBits;
         this.overflowingDirectory = overflowingDirectory;
+        this.management = new ManagementFileImpl<>(filename);
+    }
+
+    @Override
+    public ManagementFile<T, U> getManagementFile() {
+        return this.management;
     }
 
     public ExtendingHashing(int sizeOfRecord, FileHandler<T> mainHandler, FileHandler<T> overHandler, ExtendingHashFunction<T, U> hashingFunction) throws IOException {
-        ManagementFile<T, U> management = new ManagementFileImpl<>(filename);
+        this.management = new ManagementFileImpl<>(filename);
         management.load(mainHandler, overHandler);
         this.memoryManager = new DynamicDirectoryNodeManager<>(mainHandler, management.getEmptyMain());
         this.dynamicDirectory = new DynamicDirectoryImpl<>(management.getDepthOfMainDirectory(), management.getMainDirectory());
@@ -114,7 +121,7 @@ public class ExtendingHashing<T extends SavableObject<U>, U extends Comparable<U
         if (eraseFrom instanceof DynamicDirectoryNodeImpl) {
             this.reorderFromDirectory( (DynamicDirectoryNodeImpl<T, U>) eraseFrom);
         } else {
-            this.reorder((OverflowingNodeImpl<T, U>) eraseFrom);
+            this.reorder((OverflowingNodeImpl<T, U>) eraseFrom, block);
         }
         while(!isDeleteFinished) {
             DynamicDirectoryNodeImpl<T, U> neighbour = this.findNeighbour(block);
@@ -159,9 +166,9 @@ public class ExtendingHashing<T extends SavableObject<U>, U extends Comparable<U
     }
 
     @Override
-    public void saveSettings() throws IOException {
+    public void saveSettings(int maxId) throws IOException {
         try (PrintWriter printWriter = new PrintWriter(filename, StandardCharsets.UTF_8)) {
-            String mainSettings = this.numberOfRecords + ";" + this.numberOfAllowedBits + ";" + this.dynamicDirectory.getDepthOfDirectory();
+            String mainSettings = this.numberOfRecords + ";" + this.numberOfAllowedBits + ";" + this.dynamicDirectory.getDepthOfDirectory() + ";" + maxId;
             printWriter.println(this.memoryManager.getSettings());
             printWriter.println(this.overflowingDirectory.getSettings());
             printWriter.println(mainSettings);
@@ -277,22 +284,21 @@ public class ExtendingHashing<T extends SavableObject<U>, U extends Comparable<U
     private int connectBlock(DynamicDirectoryNodeImpl<T, U> blockTo, DynamicDirectoryNodeImpl<T, U> blockFrom) throws IOException {
         blockFrom.read().forEach(blockTo::addToTemporaryList);
         blockTo.decreaseDepthBlock();
-        blockTo.setNextBlock(blockFrom.getNextBlock());
+//        blockTo.setNextBlock(blockFrom.getNextBlock());
         IntStream.range(0, this.dynamicDirectory.sizeOfDirectory())
                 .filter(i -> this.dynamicDirectory.getOne(i).getStartPosition() == blockFrom.getStartPosition())
                 .forEach(i -> this.dynamicDirectory.setOne(i, blockTo));
         return this.memoryManager.addToDeallocatedBlock(blockFrom);
     }
 
-    private void reorder(OverflowingNodeImpl<T, U> node) throws IOException {
-        if (node.getNumberOfRecords() == 0) {
+    private void reorder(OverflowingNodeImpl<T, U> node, DynamicDirectoryNodeImpl<T, U> mainNode) throws IOException {
+        if (node.getTemporaryList().size() == 0) {
             OverflowingHandler<OverflowingNodeImpl<T, U>> ancestor = findAncestor(node);
             ancestor.setNextBlock(node.getNextBlock());
             this.overflowingDirectory.addToBlankBlocks(node);
         } else {
-            if (node.getNextBlock() != null) {
-                this.overflowingDirectory.reorder(node);
-            }
+            List<T> helpList = this.overflowingDirectory.reorder(node, mainNode, mainNode.getTemporaryList().size(),this.numberOfRecords);
+            helpList.forEach(mainNode::addToTemporaryList);
         }
     }
 

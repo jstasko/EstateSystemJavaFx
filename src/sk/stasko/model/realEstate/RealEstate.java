@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class RealEstate extends SavableObjectImpl<Integer> {
     public static final int allocatedMemory = 4*Integer.BYTES + allowStringBytes + Gps.allocatedMemory;
-    private static final AtomicInteger idGen = new AtomicInteger(0);
+    public static final AtomicInteger idGen = new AtomicInteger(0);
     private int id;
     private int catalogNumber;
     private String description;

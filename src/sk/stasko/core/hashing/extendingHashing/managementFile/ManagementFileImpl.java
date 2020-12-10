@@ -29,11 +29,12 @@ public class ManagementFileImpl<T extends SavableObject<U>, U extends Comparable
             this.maxNumberInMain = Integer.parseInt(settings[0]);
             this.numberOfAllowedBites = Integer.parseInt(settings[1]);
             this.depthOfMainDirectory = Integer.parseInt(settings[2]);
+            this.id = Integer.parseInt(settings[3]);
             this.maxNumberInOverflow = Integer.parseInt(overSettings[0]);
             this.setMainManager(memorySettings, main);
             this.setOverflowManager(overMemorySettings, overflow);
             this.setOverflowDirectory(overNodes, overflow);
-            this.setMainDirectory(nodeSettings, overflow);
+            this.setMainDirectory(nodeSettings, main);
         }
         return this;
     }
@@ -65,26 +66,28 @@ public class ManagementFileImpl<T extends SavableObject<U>, U extends Comparable
     }
 
     private void setOverflowDirectory(String overNodes, FileHandler<T> overHandler) {
-        String[] nodes = overNodes.split(";");
-        int index = 0;
-        List<Integer> indexes = new ArrayList<>();
-        while (index < nodes.length) {
-            OverflowingNodeImpl<T, U> node = new OverflowingNodeImpl<>(overHandler);
-            for (int i = index; i < index + 3; i++) {
-                if (i % 3 == 0) {
-                    node.setStartPosition(Integer.parseInt(nodes[i]));
-                } else if (i % 3 == 1) {
-                    node.setCurrentRecordsNumber(Integer.parseInt(nodes[i]));
-                } else {
-                    indexes.add(Integer.parseInt(nodes[i]));
+        if (overNodes.length() != 0) {
+            String[] nodes = overNodes.split(";");
+            int index = 0;
+            List<Integer> indexes = new ArrayList<>();
+            while (index < nodes.length) {
+                OverflowingNodeImpl<T, U> node = new OverflowingNodeImpl<>(overHandler, this.maxNumberInOverflow);
+                for (int i = index; i < index + 3; i++) {
+                    if (i % 3 == 0) {
+                        node.setStartPosition(Integer.parseInt(nodes[i]));
+                    } else if (i % 3 == 1) {
+                        node.setCurrentRecordsNumber(Integer.parseInt(nodes[i]));
+                    } else {
+                        indexes.add(Integer.parseInt(nodes[i]));
+                    }
                 }
+                this.overflowDirectory.add(node);
+                index = index + 3;
             }
-            this.overflowDirectory.add(node);
-            index = index + 3;
-        }
-        for (int x = 0; x < indexes.size(); x++) {
-            if (indexes.get(x) != -1) {
-                this.overflowDirectory.get(x).setNextBlock(this.overflowDirectory.get(indexes.get(x)));
+            for (int x = 0; x < indexes.size(); x++) {
+                if (indexes.get(x) != -1) {
+                    this.overflowDirectory.get(x).setNextBlock(this.overflowDirectory.get(indexes.get(x)));
+                }
             }
         }
     }

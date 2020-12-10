@@ -26,9 +26,14 @@ public class MainController extends AbstractController<RealEstate> {
     }
 
     public void load() throws IOException {
-        FileHandler<RealEstate> fileHandlerMain = new RealEstateFileHandler(Main.randomAccessFileMain);
-        FileHandler<RealEstate> over = new RealEstateFileHandler(Main.randomAccessFileOver);
-        ServiceImpl.setInstance(fileHandlerMain, over);
+        try {
+            FileHandler<RealEstate> fileHandlerMain = new RealEstateFileHandler(Main.randomAccessFileMain);
+            FileHandler<RealEstate> over = new RealEstateFileHandler(Main.randomAccessFileOver);
+            ServiceImpl.setInstance(fileHandlerMain, over);
+        } catch (IOException e) {
+            AlertHandler.errorDialog("Error", "You dont have save");
+            return;
+        }
         Main.setNewRoot("System");
     }
 

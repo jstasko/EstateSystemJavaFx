@@ -55,6 +55,7 @@ public class ServiceImpl implements Service<RealEstate> {
                             RealEstate.allocatedMemory,
                             mainFile, overflow,
                             new RealEstateKeyHash());
+            RealEstate.idGen.set(this.realEstateHashing.getManagementFile().getId());
     }
 
     @Override
@@ -82,7 +83,7 @@ public class ServiceImpl implements Service<RealEstate> {
 
     @Override
     public void saveSettings() throws IOException {
-        this.realEstateHashing.saveSettings();
+        this.realEstateHashing.saveSettings(RealEstate.idGen.get());
     }
 
     @Override

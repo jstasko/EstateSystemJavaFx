@@ -102,9 +102,4 @@ public class DynamicDirectoryImpl<T extends SavableObject<U>, U extends Comparab
     public int indexOf(DynamicDirectoryNodeImpl<T, U> node) {
         return this.directory.indexOf(node);
     }
-
-    @Override
-    public void loadSettings(ArrayList<DynamicDirectoryNodeImpl<T, U>> dynamicDirectoryNodes) {
-        this.directory = dynamicDirectoryNodes;
-    }
 }

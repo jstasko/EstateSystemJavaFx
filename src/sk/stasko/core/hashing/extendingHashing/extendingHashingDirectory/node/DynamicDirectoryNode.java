@@ -1,5 +1,6 @@
 package sk.stasko.core.hashing.extendingHashing.extendingHashingDirectory.node;
 
+import sk.stasko.core.hashing.extendingHashing.NodeHandler;
 import sk.stasko.core.hashing.extendingHashing.extendingHashingDirectory.node.block.ExtendingBlock;
 import sk.stasko.core.savableObject.SavableObject;
 

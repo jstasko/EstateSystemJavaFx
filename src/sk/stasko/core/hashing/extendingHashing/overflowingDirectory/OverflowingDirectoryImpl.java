@@ -41,16 +41,6 @@ public class OverflowingDirectoryImpl<T extends SavableObject<U>, U extends Comp
         this.memoryManager = new OverflowingManager<>(fileHandler, blank);
     }
 
-    public void reorderBlankBlocks() throws IOException {
-        int maxAllocatedMemory;
-        if (this.directory.size() == 0) {
-            maxAllocatedMemory = 0;
-        } else {
-            maxAllocatedMemory = this.startPositionOfLastAllocatedBlock() + maxItemInBlock*sizeOfRecord;
-        }
-        this.memoryManager.reorderBlankBlocks(maxAllocatedMemory);
-    }
-
     @Override
     public boolean add(OverflowingHandler<OverflowingNodeImpl<T, U>> item, T data) throws IOException {
         OverflowingNodeImpl<T, U> block = this.findCorrectBlock(item);
@@ -74,8 +64,8 @@ public class OverflowingDirectoryImpl<T extends SavableObject<U>, U extends Comp
                     .filter(i -> i.getKey().compareTo(key) != 0)
                     .collect(Collectors.toList());
             if (sizeOfItems > items.size()) {
-                this.fileHandler.write(items, foundedNode.getStartPosition(), foundedNode.getNumberOfRecords());
-                foundedNode.setCurrentRecordsNumber(items.size());
+                foundedNode.clearData();
+                items.forEach(foundedNode::addToTemporaryList);
                 return foundedNode;
             }
             index = this.directory.indexOf(foundedNode.getNextBlock());
@@ -84,7 +74,7 @@ public class OverflowingDirectoryImpl<T extends SavableObject<U>, U extends Comp
     }
 
     @Override
-    public T find(DynamicDirectoryNodeImpl<T, U> node, U key) throws IOException {
+    public T find(OverflowingHandler<OverflowingNodeImpl<T, U>> node, U key) throws IOException {
         int index = this.directory.indexOf(node.getNextBlock());
         if (index <= -1) {
             return null;
@@ -103,59 +93,6 @@ public class OverflowingDirectoryImpl<T extends SavableObject<U>, U extends Comp
     }
 
     @Override
-    public void reorder(OverflowingNodeImpl<T, U> node) throws IOException {
-        OverflowingNodeImpl<T, U> helpNode = node;
-        int index = this.directory.indexOf(node.getNextBlock());
-        List<T> items = new ArrayList<>();
-        int numberOfRecords = node.getNumberOfRecords();
-        while (index > -1) {
-            helpNode = helpNode.getNextBlock();
-            index = this.directory.indexOf(helpNode.getNextBlock());
-            if (node.getNumberOfRecords() + helpNode.getNumberOfRecords() <= this.maxItemInBlock) {
-                items.addAll(helpNode.read());
-                helpNode.clearData();
-                OverflowingNodeImpl<T, U> ancestorInOverflowing = this.findAncestor(helpNode);
-                ancestorInOverflowing.setNextBlock(helpNode.getNextBlock());
-                this.addToBlankBlocks(helpNode);
-                node.setCurrentRecordsNumber(node.getNumberOfRecords() + items.size());
-            }
-        }
-
-        if (items.size() > 0) {
-            this.fileHandler.write(items,
-                    node.getStartPosition() + numberOfRecords * this.sizeOfRecord, items.size());
-        }
-    }
-
-    private OverflowingNodeImpl<T,U> findCorrectBlock(OverflowingHandler<OverflowingNodeImpl<T, U>> node) {
-        int index = this.directory.indexOf(node.getNextBlock());
-        OverflowingNodeImpl<T, U> foundedNode = null;
-        while (index > -1) {
-            foundedNode = this.directory.get(index);
-            if (foundedNode.getNumberOfRecords() < this.maxItemInBlock) {
-                return foundedNode;
-            }
-            index = this.directory.indexOf(foundedNode.getNextBlock());
-        }
-        return this.addBlock(Objects.requireNonNullElse(foundedNode, node));
-    }
-
-    private OverflowingNodeImpl<T, U> addBlock(OverflowingHandler<OverflowingNodeImpl<T, U>> node) {
-        OverflowingNodeImpl<T, U> block;
-        if (this.memoryManager.getSize() == 0) {
-            int startPosition = 0;
-            if (this.directory.size() != 0) {
-                startPosition = startPositionOfLastAllocatedBlock() + this.sizeOfRecord * this.maxItemInBlock;
-            }
-            block = new OverflowingNodeImpl<>(startPosition, this.maxItemInBlock, fileHandler);
-        } else {
-            block = this.memoryManager.getBlock(0);
-        }
-        this.directory.add(block);
-        node.setNextBlock(block);
-        return block;
-    }
-    @Override
     public OverflowingNodeImpl<T, U> findAncestor(OverflowingNodeImpl<T, U> block) {
         int index = this.directory.indexOf(block);
         return this.directory
@@ -166,9 +103,30 @@ public class OverflowingDirectoryImpl<T extends SavableObject<U>, U extends Comp
     }
 
     @Override
-    public void addToBlankBlocks(OverflowingNodeImpl<T, U> node) {
-        this.memoryManager.addToDeallocatedBlock(node);
-        this.directory.remove(node);
+    public List<T> reorder(OverflowingNodeImpl<T, U> node, OverflowingHandler<OverflowingNodeImpl<T, U>> mainNode, int numberOfItems, int maxInMain) throws IOException {
+        if (node.getNextBlock() != null) {
+            OverflowingNodeImpl<T, U> helpNode;
+            int index = this.directory.indexOf(node.getNextBlock());
+            while (index > -1) {
+                helpNode = this.directory.get(index);
+                OverflowingNodeImpl<T, U> nextBlock = helpNode.getNextBlock();
+                if (node.getTemporaryList().size() + helpNode.getNumberOfRecords() <= this.maxItemInBlock) {
+                    helpNode.read().forEach(node::addToTemporaryList);
+                    this.reorderBlocks(helpNode, null);
+                }
+                index = this.directory.indexOf(nextBlock);
+            }
+        }
+        List<T> helpList = new LinkedList<>();
+        if (numberOfItems + node.getTemporaryList().size() <= maxInMain) {
+            helpList.addAll(node.getTemporaryList());
+            this.reorderBlocks(node, mainNode);
+        } else {
+            this.fileHandler.write(node.getTemporaryList(), node.getStartPosition(), node.getTemporaryList().size());
+            node.setCurrentRecordsNumber(node.getTemporaryList().size());
+            node.clearTemporaryList();
+        }
+        return helpList;
     }
 
     @Override
@@ -179,21 +137,32 @@ public class OverflowingDirectoryImpl<T extends SavableObject<U>, U extends Comp
         int currentRecords = numberOfItems;
         while (index > -1) {
             helpNode = this.directory.get(index);
-            index = this.directory.indexOf(helpNode.getNextBlock());
+            OverflowingNodeImpl<T, U> nextBlock = helpNode.getNextBlock();
             if (currentRecords + helpNode.getNumberOfRecords() <= maxItems) {
                 items.addAll(helpNode.read());
-                helpNode.clearData();
-                OverflowingNodeImpl<T, U> ancestorInOverflowing = this.findAncestor(helpNode);
-                if (ancestorInOverflowing == null) {
-                    node.setNextBlock(helpNode);
-                } else {
-                    ancestorInOverflowing.setNextBlock(helpNode.getNextBlock());
-                }
-                this.addToBlankBlocks(helpNode);
+                this.reorderBlocks(helpNode, node);
                 currentRecords += items.size();
             }
+            index = this.directory.indexOf(nextBlock);
         }
         return items;
+    }
+
+    @Override
+    public void reorderBlankBlocks() throws IOException {
+        int maxAllocatedMemory;
+        if (this.directory.size() == 0) {
+            maxAllocatedMemory = 0;
+        } else {
+            maxAllocatedMemory = this.startPositionOfLastAllocatedBlock() + maxItemInBlock*sizeOfRecord;
+        }
+        this.memoryManager.reorderBlankBlocks(maxAllocatedMemory);
+    }
+
+    @Override
+    public void addToBlankBlocks(OverflowingNodeImpl<T, U> node) {
+        this.memoryManager.addToDeallocatedBlock(node);
+        this.directory.remove(node);
     }
 
     @Override
@@ -224,12 +193,43 @@ public class OverflowingDirectoryImpl<T extends SavableObject<U>, U extends Comp
         return memoryManager + directory + String.join(";", items);
     }
 
-    @Override
-    public OverflowingNodeImpl<T, U> getOneByAddress(int address) {
-        return this.directory
-                .stream()
-                .filter(i -> i.getStartPosition() == address)
-                .findFirst()
-                .orElse(null);
+    private void reorderBlocks(OverflowingNodeImpl<T, U> helpNode, OverflowingHandler<OverflowingNodeImpl<T, U>> node) {
+        helpNode.clearData();
+        OverflowingNodeImpl<T, U> ancestorInOverflowing = this.findAncestor(helpNode);
+        if (node != null && ancestorInOverflowing == null) {
+            node.setNextBlock(helpNode.getNextBlock());
+        } else {
+            ancestorInOverflowing.setNextBlock(helpNode.getNextBlock());
+        }
+        this.addToBlankBlocks(helpNode);
+    }
+
+    private OverflowingNodeImpl<T,U> findCorrectBlock(OverflowingHandler<OverflowingNodeImpl<T, U>> node) {
+        int index = this.directory.indexOf(node.getNextBlock());
+        OverflowingNodeImpl<T, U> foundedNode = null;
+        while (index > -1) {
+            foundedNode = this.directory.get(index);
+            if (foundedNode.getNumberOfRecords() < this.maxItemInBlock) {
+                return foundedNode;
+            }
+            index = this.directory.indexOf(foundedNode.getNextBlock());
+        }
+        return this.addBlock(Objects.requireNonNullElse(foundedNode, node));
+    }
+
+    private OverflowingNodeImpl<T, U> addBlock(OverflowingHandler<OverflowingNodeImpl<T, U>> node) {
+        OverflowingNodeImpl<T, U> block;
+        if (this.memoryManager.getSize() == 0) {
+            int startPosition = 0;
+            if (this.directory.size() != 0) {
+                startPosition = startPositionOfLastAllocatedBlock() + this.sizeOfRecord * this.maxItemInBlock;
+            }
+            block = new OverflowingNodeImpl<>(startPosition, this.maxItemInBlock, fileHandler);
+        } else {
+            block = this.memoryManager.getBlock(0);
+        }
+        this.directory.add(block);
+        node.setNextBlock(block);
+        return block;
     }
 }

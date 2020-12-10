@@ -76,7 +76,7 @@ public class PersonTest extends AbstractTest<Person, Integer> {
             FileHandlerImpl<Person, Integer> fileHandler = new PersonFileHandler(randomAccessFile);
             FileHandlerImpl<Person, Integer> handlerOver = new PersonFileHandler(overFile);
             Random random = new Random();
-            OverflowingDirectory<Person, Integer> o = new OverflowingDirectoryImpl<>(10, Person.allocatedMem, handlerOver);
+            OverflowingDirectory<Person, Integer> o = new OverflowingDirectoryImpl<>(20, Person.allocatedMem, handlerOver);
             ExtendingHashing<Person, Integer> extendibleHashing = new ExtendingHashing<>(10, Person.allocatedMem, 7,new PersonKeyHash(), fileHandler, o);
             PersonTest personTest = new PersonTest(random, extendibleHashing, fileHandler,o);
             random.setSeed(i);
@@ -94,7 +94,7 @@ public class PersonTest extends AbstractTest<Person, Integer> {
             FileHandlerImpl<Person, Integer> overHandler = new PersonFileHandler(over);
             Random random = new Random();
             OverflowingDirectory<Person, Integer> o = new OverflowingDirectoryImpl<>(10, Person.allocatedMem, overHandler);
-            ExtendingHashing<Person, Integer> extendibleHashing = new ExtendingHashing<>(10, Person.allocatedMem, 7, new PersonKeyHash(), fileHandler, o);
+            ExtendingHashing<Person, Integer> extendibleHashing = new ExtendingHashing<>(20, Person.allocatedMem, 7, new PersonKeyHash(), fileHandler, o);
             PersonTest personTest = new PersonTest(random, extendibleHashing, fileHandler,o);
             personTest.addToList();
             personTest.addingList(0);

@@ -1,7 +1,7 @@
 package sk.stasko.core.hashing.extendingHashing.overflowingDirectory.node;
 
 import sk.stasko.core.hashing.extendingHashing.OverflowingHandler;
-import sk.stasko.core.hashing.extendingHashing.extendingHashingDirectory.node.NodeHandler;
+import sk.stasko.core.hashing.extendingHashing.NodeHandler;
 import sk.stasko.core.hashing.node.DirectoryNode;
 import sk.stasko.core.fileHandler.FileHandler;
 import sk.stasko.core.savableObject.SavableObject;
@@ -19,8 +19,8 @@ public class OverflowingNodeImpl<T extends SavableObject<U>, U extends Comparabl
         this.temporaryRecords = new LinkedList<>();
     }
 
-    public OverflowingNodeImpl(FileHandler<T> fileHandler) {
-        super(-1, fileHandler, -1);
+    public OverflowingNodeImpl(FileHandler<T> fileHandler, int maxItems) {
+        super(-1, fileHandler, maxItems);
     }
 
     @Override
@@ -36,6 +36,7 @@ public class OverflowingNodeImpl<T extends SavableObject<U>, U extends Comparabl
     @Override
     public void clearData() {
         this.numberOfCurrentRecord = 0;
+        this.temporaryRecords = new LinkedList<>();
     }
 
 

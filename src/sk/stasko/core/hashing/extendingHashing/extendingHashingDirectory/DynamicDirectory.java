@@ -21,5 +21,4 @@ public interface DynamicDirectory<T extends SavableObject<U>, U extends Comparab
     int indexOf(DynamicDirectoryNodeImpl<T, U> node);
     OverflowingHandler<OverflowingNodeImpl<T, U>> findAncestor(OverflowingNodeImpl<T, U> index);
     String getSettings();
-    void loadSettings(ArrayList<DynamicDirectoryNodeImpl<T,U>> nodes);
 }

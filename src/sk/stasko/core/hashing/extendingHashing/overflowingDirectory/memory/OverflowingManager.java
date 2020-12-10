@@ -1,13 +1,10 @@
 package sk.stasko.core.hashing.extendingHashing.overflowingDirectory.memory;
 
 import sk.stasko.core.fileHandler.FileHandler;
-import sk.stasko.core.hashing.extendingHashing.extendingHashingDirectory.node.DynamicDirectoryNodeImpl;
-import sk.stasko.core.hashing.extendingHashing.extendingHashingDirectory.node.block.ExtendingBlockImpl;
 import sk.stasko.core.hashing.extendingHashing.overflowingDirectory.node.OverflowingNodeImpl;
 import sk.stasko.core.hashing.memory.MemoryManager;
 import sk.stasko.core.savableObject.SavableObject;
 
-import java.util.LinkedList;
 import java.util.Queue;
 
 public class OverflowingManager<T extends SavableObject<U>, U extends Comparable<U>> extends MemoryManager<T, OverflowingNodeImpl<T, U>, U> {

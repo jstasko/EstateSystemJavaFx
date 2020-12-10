@@ -5,10 +5,8 @@ import sk.stasko.core.fileHandler.FileHandler;
 import sk.stasko.core.savableObject.SavableObject;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public abstract class MemoryManager<T extends SavableObject<U>, S extends DirectoryNode<T, U>, U extends Comparable<U>> {
     protected Queue<S> listOfBlocks;

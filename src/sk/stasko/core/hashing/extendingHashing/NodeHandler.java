@@ -1,4 +1,4 @@
-package sk.stasko.core.hashing.extendingHashing.extendingHashingDirectory.node;
+package sk.stasko.core.hashing.extendingHashing;
 
 import java.util.List;
 

@@ -9,7 +9,7 @@ import sk.stasko.util.AlertHandler;
 import java.io.IOException;
 import java.util.Random;
 
-public class GeneratorModalController {
+public class GeneratorModalController extends AbstractController {
     @FXML private TextField realEstatesNumber;
     private Stage stage;
 

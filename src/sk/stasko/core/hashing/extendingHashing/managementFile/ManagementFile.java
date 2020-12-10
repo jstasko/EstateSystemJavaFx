@@ -7,10 +7,8 @@ import sk.stasko.core.savableObject.SavableObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.stream.Collectors;
 
 public abstract class ManagementFile<T extends SavableObject<U>, U extends Comparable<U>> {
     protected ArrayList<DynamicDirectoryNodeImpl<T, U>> mainDirectory;
@@ -19,6 +17,7 @@ public abstract class ManagementFile<T extends SavableObject<U>, U extends Compa
     protected int maxNumberInMain;
     protected int numberOfAllowedBites;
     protected int maxNumberInOverflow;
+    protected int id;
     protected Queue<DynamicDirectoryNodeImpl<T, U>> emptyMain;
     protected Queue<OverflowingNodeImpl<T, U>> emptyOverflow;
     protected String fileName;
@@ -33,6 +32,14 @@ public abstract class ManagementFile<T extends SavableObject<U>, U extends Compa
         this.maxNumberInOverflow = -1;
         this.depthOfMainDirectory = -1;
         this.fileName = file;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public int getDepthOfMainDirectory() {
