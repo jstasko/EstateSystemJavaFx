@@ -3,21 +3,18 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="400.0" prefWidth="350.0" xmlns="http://javafx.com/javafx/11.0.1"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="sk.stasko.controller.EditModalController">
-    <TextField fx:id="catalogNumber" layoutX="62.0" layoutY="127.0"/>
-    <TextField fx:id="lon" layoutX="277.0" layoutY="242.0" prefHeight="26.0" prefWidth="40.0"/>
-    <TextField fx:id="lat" layoutX="277.0" layoutY="298.0" prefHeight="26.0" prefWidth="40.0"/>
-    <TextArea fx:id="desc" layoutX="41.0" layoutY="199.0" prefHeight="126.0" prefWidth="200.0"/>
-    <Label layoutX="93.0" layoutY="100.0" text="Catalog number"/>
-    <Label layoutX="282.0" layoutY="200.0" text="GPS"/>
-    <Label layoutX="252.0" layoutY="246.0" text="Lon"/>
-    <Label layoutX="254.0" layoutY="302.0" text="Lat"/>
-    <Label layoutX="106.0" layoutY="165.0" text="Description"/>
-    <Button fx:id="delete" layoutX="261.0" layoutY="47.0" mnemonicParsing="false" onMouseClicked="#delete"
-            prefHeight="42.0" prefWidth="62.0" text="Delete"/>
-    <Button layoutX="261.0" layoutY="106.0" mnemonicParsing="false" onMouseClicked="#edit" prefHeight="42.0"
-            prefWidth="62.0" text="Save"/>
-    <Label layoutX="130.0" layoutY="24.0" text="Id"/>
-    <TextField fx:id="id" disable="true" layoutX="61.0" layoutY="56.0"/>
+<AnchorPane prefHeight="400.0" prefWidth="350.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sk.stasko.controller.EditModalController">
+    <TextField fx:id="catalogNumber" layoutX="62.0" layoutY="127.0" />
+    <TextField fx:id="lon" layoutX="277.0" layoutY="242.0" prefHeight="26.0" prefWidth="40.0" />
+    <TextField fx:id="lat" layoutX="277.0" layoutY="298.0" prefHeight="26.0" prefWidth="40.0" />
+    <TextArea fx:id="desc" layoutX="41.0" layoutY="199.0" prefHeight="126.0" prefWidth="200.0" />
+    <Label layoutX="93.0" layoutY="100.0" text="Catalog number" />
+    <Label layoutX="282.0" layoutY="200.0" text="GPS" />
+    <Label layoutX="252.0" layoutY="246.0" text="Lon" />
+    <Label layoutX="254.0" layoutY="302.0" text="Lat" />
+    <Label layoutX="106.0" layoutY="165.0" text="Description" />
+    <Button fx:id="delete" layoutX="261.0" layoutY="47.0" mnemonicParsing="false" onMouseClicked="#delete" prefHeight="42.0" prefWidth="62.0" text="Delete" />
+    <Button layoutX="261.0" layoutY="106.0" mnemonicParsing="false" onMouseClicked="#edit" prefHeight="42.0" prefWidth="62.0" text="Save" />
+    <Label layoutX="130.0" layoutY="24.0" text="Id" />
+    <TextField fx:id="idRealEstate" layoutX="61.0" layoutY="56.0" />
 </AnchorPane>

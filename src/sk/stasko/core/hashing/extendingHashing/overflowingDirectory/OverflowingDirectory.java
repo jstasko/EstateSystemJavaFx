@@ -22,4 +22,5 @@ public interface OverflowingDirectory<T extends SavableObject<U>, U extends Comp
     void reorderBlankBlocks() throws IOException;
     void addToBlankBlocks(OverflowingNodeImpl<T, U> node);
     OverflowingNodeImpl<T, U> findAncestor(OverflowingNodeImpl<T, U> block);
+    void edit(T item, OverflowingHandler<OverflowingNodeImpl<T, U>> node, U key) throws IOException;
 }

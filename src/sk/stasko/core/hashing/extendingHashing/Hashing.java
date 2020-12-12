@@ -15,4 +15,5 @@ public interface Hashing<T extends SavableObject<U>, U extends Comparable<U>> {
     String getOverflowPart() throws IOException;
     String getOverflowPartBlank();
     ManagementFile<T, U> getManagementFile();
+    void edit(T item) throws IOException;
 }

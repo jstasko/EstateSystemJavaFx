@@ -77,6 +77,14 @@ public class ExtendingHashing<T extends SavableObject<U>, U extends Comparable<U
             int maxBytes = this.dynamicDirectory.startPositionOfLastAllocatedBlock() + spaceInOneBucket;
             int index = this.hashingFunction.getIndexFromItem(item, this.dynamicDirectory.getDepthOfDirectory());
             DynamicDirectoryNodeImpl<T, U> blockToInsert = this.dynamicDirectory.getOne(index);
+            List<T> items = blockToInsert.read();
+            T foundItem = this.findRecordInMainPart(items, item.getKey());
+            if (foundItem == null) {
+                foundItem = this.overflowingDirectory.find(blockToInsert, item.getKey());
+            }
+            if (foundItem != null) {
+                return;
+            }
             if (!blockToInsert.isFull()) {
                 this.fileHandler.write(item,
                         blockToInsert.getStartPosition() + blockToInsert.getNumberOfRecords() * item.getAllocatedMemory());
@@ -87,7 +95,7 @@ public class ExtendingHashing<T extends SavableObject<U>, U extends Comparable<U
                     if (blockToInsert.getDepthOfBlock() == this.dynamicDirectory.getDepthOfDirectory()) {
                         this.dynamicDirectory.doubleDirectory();
                     }
-                    isAdded = splitOfBlocks(blockToInsert, maxBytes, item);
+                    isAdded = splitOfBlocks(blockToInsert, maxBytes, item, items);
                 } else {
                     isAdded = this.overflowingDirectory.add(blockToInsert, item);
                 }
@@ -236,7 +244,7 @@ public class ExtendingHashing<T extends SavableObject<U>, U extends Comparable<U
         return null;
     }
 
-    private boolean splitOfBlocks(DynamicDirectoryNodeImpl<T, U> oldBlock, int byteToStart, T myItem) throws IOException {
+    private boolean splitOfBlocks(DynamicDirectoryNodeImpl<T, U> oldBlock, int byteToStart, T myItem, List<T> items) throws IOException {
         oldBlock.incrementDepthBlock();
         DynamicDirectoryNodeImpl<T, U> newBlock;
         if (this.memoryManager.getSize() > 0) {
@@ -254,7 +262,6 @@ public class ExtendingHashing<T extends SavableObject<U>, U extends Comparable<U
                 .stream()
                 .skip(directoryNodesIndexes.size() / 2)
                 .forEach(i -> this.dynamicDirectory.setOne(i, newBlock));
-        List<T> items = oldBlock.read();
         oldBlock.clearData();
         items.add(myItem);
         var wrapper = new Object(){ boolean added = false; };
@@ -323,5 +330,31 @@ public class ExtendingHashing<T extends SavableObject<U>, U extends Comparable<U
     @Override
     public String getOverflowPartBlank() {
         return this.overflowingDirectory.printBlank();
+    }
+
+    @Override
+    public void edit(T item) throws IOException {
+        int index = this.hashingFunction.getIndexFromItem(item, this.dynamicDirectory.getDepthOfDirectory());
+        DynamicDirectoryNodeImpl<T, U> foundedNode = this.dynamicDirectory.getOne(index);
+        List<T> foundList = foundedNode.read();
+        if (foundList == null) {
+            return;
+        }
+        int number = 0;
+        boolean isAdded = false;
+        for (T s: foundList) {
+            if (s.getKey().compareTo(item.getKey()) == 0) {
+                this.fileHandler.write(item,
+                        foundedNode.getStartPosition() + number * item.getAllocatedMemory());
+                isAdded = true;
+                break;
+            }
+            number++;
+        }
+        if (isAdded) {
+            return;
+        }
+        this.overflowingDirectory.edit(item, foundedNode, item.getKey());
+
     }
 }

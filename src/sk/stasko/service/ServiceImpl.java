@@ -73,6 +73,16 @@ public class ServiceImpl implements Service<RealEstate> {
         return this.realEstateHashing.find(id);
     }
 
+    public RealEstate createRealEstate(String id,String catalogNum, String desc, String latStr, String lonStr) throws RuntimeException {
+        int i = Integer.parseInt(id);
+        int catalogNumber = Integer.parseInt(catalogNum);
+        double lon = Double.parseDouble(lonStr);
+        double lat = Double.parseDouble(latStr);
+        Helper.checkString(desc);
+        return new RealEstate(i, catalogNumber, desc, new Gps(lat, lon));
+    }
+
+    @Override
     public RealEstate createRealEstate(String catalogNum, String desc, String latStr, String lonStr) throws RuntimeException {
         int catalogNumber = Integer.parseInt(catalogNum);
         double lon = Double.parseDouble(lonStr);
@@ -84,6 +94,11 @@ public class ServiceImpl implements Service<RealEstate> {
     @Override
     public void saveSettings() throws IOException {
         this.realEstateHashing.saveSettings(RealEstate.idGen.get());
+    }
+
+    @Override
+    public void edit(RealEstate item) throws IOException {
+        this.realEstateHashing.edit(item);
     }
 
     @Override

@@ -11,6 +11,21 @@ public class Helper {
         }
     }
 
+    public static RealEstate handleRealEstate(String id, String catalogNumber, String desc, String lat, String lon) {
+        RealEstate estate;
+        try {
+            estate = ServiceImpl.getInstance().createRealEstate(id, catalogNumber,desc, lat, lon);
+        } catch (RuntimeException e) {
+            if (e instanceof NumberFormatException) {
+                AlertHandler.errorDialog("Error", "Bad input for numbers");
+            } else {
+                AlertHandler.errorDialog("Error", e.getMessage());
+            }
+            return null;
+        }
+        return estate;
+    }
+
     public static RealEstate handleRealEstate(String catalogNumber, String desc, String lat, String lon) {
         RealEstate estate;
         try {

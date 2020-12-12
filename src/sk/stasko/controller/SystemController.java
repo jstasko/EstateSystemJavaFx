@@ -6,6 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import sk.stasko.Main;
 import sk.stasko.model.realEstate.RealEstate;
@@ -16,7 +17,7 @@ import sk.stasko.util.Helper;
 import java.io.IOException;
 
 public class SystemController extends AbstractController<RealEstate> {
-
+    @FXML private TextField idRealEstate;
     @FXML private ListView<RealEstate> realEstateView;
 
     public void handleSelect() throws IOException {
@@ -65,7 +66,7 @@ public class SystemController extends AbstractController<RealEstate> {
     }
 
     public void add() throws IOException {
-        RealEstate estate = Helper.handleRealEstate(this.catalogNumber.getText(), this.desc.getText(), this.lat.getText(), this.lon.getText());
+        RealEstate estate = Helper.handleRealEstate(idRealEstate.getText(), this.catalogNumber.getText(), this.desc.getText(), this.lat.getText(), this.lon.getText());
         if (estate == null) {
             return;
         }

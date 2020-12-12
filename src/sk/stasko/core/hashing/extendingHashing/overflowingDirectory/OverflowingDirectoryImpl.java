@@ -103,6 +103,27 @@ public class OverflowingDirectoryImpl<T extends SavableObject<U>, U extends Comp
     }
 
     @Override
+    public void edit(T item, OverflowingHandler<OverflowingNodeImpl<T, U>> node, U key) throws IOException {
+        int index = this.directory.indexOf(node.getNextBlock());
+        if (index <= -1) {
+            return;
+        }
+        while (index > -1) {
+            OverflowingNodeImpl<T, U> foundedNode = this.directory.get(index);
+            List<T> items = foundedNode.read();
+            int number = 0;
+            for (T data: items) {
+                if (data.getKey().compareTo(key) == 0) {
+                    this.fileHandler.write(item, foundedNode.getStartPosition() + number* this.sizeOfRecord);
+                    return;
+                }
+                number++;
+            }
+            index = this.directory.indexOf(foundedNode.getNextBlock());
+        }
+    }
+
+    @Override
     public List<T> reorder(OverflowingNodeImpl<T, U> node, OverflowingHandler<OverflowingNodeImpl<T, U>> mainNode, int numberOfItems, int maxInMain) throws IOException {
         if (node.getNextBlock() != null) {
             OverflowingNodeImpl<T, U> helpNode;

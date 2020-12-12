@@ -66,8 +66,8 @@ public abstract class DirectoryNode<T extends SavableObject<U>, U extends Compar
                 .range(0, numberOfRecord)
                 .forEach(r ->
                         help.helper = help.helper.concat(
-                                "        +++++ RECORD KEY " +
-                                        records.get(r).getKey().toString() +
+                                "        +++++ RECORD  " +
+                                        records.get(r).toString() +
                                         " +++++ \n"
                         )
                 );

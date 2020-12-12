@@ -21,7 +21,7 @@ public class PersonTest extends AbstractTest<Person, Integer> {
     }
 
     public void addToList() {
-        for (int i = 0; i < 5000; i++) {
+        for (int i = 0; i < 10000; i++) {
             this.list.add(new Person(TesterMain.getString(random, random.nextInt(20)), TesterMain.getString(random,random.nextInt(20))));
         }
         System.out.println("ADDED TO LIST");
@@ -93,8 +93,8 @@ public class PersonTest extends AbstractTest<Person, Integer> {
             FileHandlerImpl<Person, Integer> fileHandler = new PersonFileHandler(randomAccessFile);
             FileHandlerImpl<Person, Integer> overHandler = new PersonFileHandler(over);
             Random random = new Random();
-            OverflowingDirectory<Person, Integer> o = new OverflowingDirectoryImpl<>(10, Person.allocatedMem, overHandler);
-            ExtendingHashing<Person, Integer> extendibleHashing = new ExtendingHashing<>(20, Person.allocatedMem, 7, new PersonKeyHash(), fileHandler, o);
+            OverflowingDirectory<Person, Integer> o = new OverflowingDirectoryImpl<>(30, Person.allocatedMem, overHandler);
+            ExtendingHashing<Person, Integer> extendibleHashing = new ExtendingHashing<>(30, Person.allocatedMem, 7, new PersonKeyHash(), fileHandler, o);
             PersonTest personTest = new PersonTest(random, extendibleHashing, fileHandler,o);
             personTest.addToList();
             personTest.addingList(0);
